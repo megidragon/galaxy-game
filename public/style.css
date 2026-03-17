@@ -1,0 +1,239 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #05050f;
+  color: #c8c8e0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Layout */
+#app {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  grid-template-rows: 48px 1fr 200px;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Top bar */
+#topbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: #0a0a1a;
+  border-bottom: 1px solid #1a1a3a;
+  z-index: 10;
+}
+
+#topbar h1 {
+  font-size: 1.1rem;
+  color: #7b9fff;
+  font-weight: 600;
+}
+
+#resources {
+  display: flex;
+  gap: 20px;
+  font-size: 0.85rem;
+}
+
+.resource {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.resource .icon { font-size: 1rem; }
+.resource .value { font-weight: 600; color: #e0e0ff; }
+.resource .delta { font-size: 0.75rem; color: #66aa66; }
+.resource .delta.negative { color: #aa6666; }
+
+#speed-controls {
+  display: flex;
+  gap: 4px;
+}
+
+#speed-controls button {
+  background: #12122a;
+  color: #8888aa;
+  border: 1px solid #2a2a4a;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+#speed-controls button.active {
+  background: #2a2a5a;
+  color: #aaccff;
+  border-color: #4466aa;
+}
+
+#speed-controls button:hover { background: #1a1a3a; }
+
+/* Sidebar */
+#sidebar {
+  background: #0a0a1a;
+  border-right: 1px solid #1a1a3a;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+#sidebar h2 {
+  font-size: 0.85rem;
+  color: #6666aa;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+#sidebar h3 {
+  font-size: 0.9rem;
+  color: #aabbff;
+  margin: 12px 0 6px 0;
+}
+
+.sidebar-section {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #1a1a3a;
+}
+
+.ship-list, .planet-list {
+  list-style: none;
+}
+
+.ship-item, .planet-item {
+  padding: 6px 8px;
+  margin: 2px 0;
+  background: #12122a;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.ship-item:hover, .planet-item:hover {
+  border-color: #3355aa;
+}
+
+.ship-item.selected, .planet-item.selected {
+  border-color: #5577cc;
+  background: #1a1a3a;
+}
+
+.ship-class { color: #8888aa; font-size: 0.7rem; text-transform: uppercase; }
+.ship-hp { color: #66aa66; float: right; font-size: 0.75rem; }
+
+/* Canvas area */
+#canvas-container {
+  position: relative;
+  overflow: hidden;
+}
+
+#galaxy-canvas {
+  display: block;
+  cursor: grab;
+}
+
+#galaxy-canvas.dragging { cursor: grabbing; }
+
+/* Bottom panel */
+#bottom-panel {
+  grid-column: 1 / -1;
+  background: #0a0a1a;
+  border-top: 1px solid #1a1a3a;
+  padding: 12px 16px;
+  overflow-y: auto;
+  display: flex;
+  gap: 24px;
+}
+
+.panel-section {
+  flex: 1;
+  min-width: 200px;
+}
+
+.panel-section h3 {
+  font-size: 0.8rem;
+  color: #6666aa;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+/* Action buttons */
+.action-btn {
+  background: #1a1a3a;
+  color: #aabbee;
+  border: 1px solid #2a2a5a;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  margin: 2px;
+}
+
+.action-btn:hover { background: #2a2a5a; border-color: #4466aa; }
+.action-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* System info */
+.system-info {
+  font-size: 0.85rem;
+}
+
+.system-info .label { color: #6666aa; }
+.system-info .value { color: #e0e0ff; }
+
+/* Research card */
+.tech-card {
+  background: #12122a;
+  border: 1px solid #2a2a4a;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin: 4px 0;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.tech-card:hover { border-color: #4466aa; }
+.tech-card .tech-name { color: #aaccff; font-weight: 600; }
+.tech-card .tech-desc { color: #8888aa; font-size: 0.75rem; margin-top: 2px; }
+.tech-card .tech-cost { color: #cc88ff; font-size: 0.75rem; float: right; }
+
+/* Tick counter */
+#tick-display {
+  font-size: 0.8rem;
+  color: #6666aa;
+}
+
+/* Toast messages */
+#toasts {
+  position: fixed;
+  top: 60px;
+  right: 16px;
+  z-index: 100;
+}
+
+.toast {
+  background: #1a1a3a;
+  border: 1px solid #3355aa;
+  color: #c8c8e0;
+  padding: 8px 16px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.toast.error { border-color: #aa3333; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
