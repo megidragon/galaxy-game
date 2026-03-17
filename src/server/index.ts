@@ -7,7 +7,11 @@ import { createSchema } from "./database/schema.js";
 import { GameEngine } from "./engine/GameEngine.js";
 import { createGameRouter } from "./routes/game.js";
 import { createGalaxyRouter } from "./routes/galaxy.js";
-import { isGalaxyGenerated, generateGalaxy, saveGalaxy } from "./galaxy/index.js";
+import { isGalaxyGenerated, generateGalaxy, saveGalaxy, loadGalaxy } from "./galaxy/index.js";
+import { createEmpiresRouter } from "./routes/empires.js";
+import { createShipsRouter } from "./routes/ships.js";
+import { setupNewGame } from "./entities/GameSetup.js";
+import { EmpireManager } from "./entities/EmpireManager.js";
 import { CONFIG } from "../shared/config.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -33,6 +37,12 @@ function main(): void {
       `${galaxyData.hyperlanes.length} hyperlanes, ` +
       `${galaxyData.systems.reduce((s, sys) => s + sys.planets.length, 0)} planets`
     );
+
+    // Set up empires and starting ships
+    setupNewGame(db, galaxyData.systems);
+    const empireManager = new EmpireManager(db);
+    const empires = empireManager.getAllEmpires();
+    console.log(`Created ${empires.length} empires (1 player + ${empires.length - 1} AI)`);
   }
 
   // Create game engine
@@ -50,6 +60,8 @@ function main(): void {
   // API routes
   app.use("/api/game", createGameRouter(engine));
   app.use("/api/galaxy", createGalaxyRouter(db));
+  app.use("/api/empires", createEmpiresRouter(db));
+  app.use("/api/ships", createShipsRouter(db));
 
   // Health check
   app.get("/api/health", (_req, res) => {
