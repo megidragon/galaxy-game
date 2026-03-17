@@ -12,6 +12,7 @@ import { createEmpiresRouter } from "./routes/empires.js";
 import { createShipsRouter } from "./routes/ships.js";
 import { setupNewGame } from "./entities/GameSetup.js";
 import { EmpireManager } from "./entities/EmpireManager.js";
+import { createResearchRouter } from "./routes/research.js";
 import { CONFIG } from "../shared/config.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -62,6 +63,7 @@ function main(): void {
   app.use("/api/galaxy", createGalaxyRouter(db));
   app.use("/api/empires", createEmpiresRouter(db));
   app.use("/api/ships", createShipsRouter(db));
+  app.use("/api/research", createResearchRouter(db));
 
   // Health check
   app.get("/api/health", (_req, res) => {

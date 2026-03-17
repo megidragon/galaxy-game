@@ -1,6 +1,7 @@
 import type Database from "better-sqlite3";
 import { GameLoop } from "./GameLoop.js";
 import { EconomySystem } from "../systems/EconomySystem.js";
+import { ResearchSystem } from "../systems/ResearchSystem.js";
 import { ShipManager } from "../entities/ShipManager.js";
 import { EmpireManager } from "../entities/EmpireManager.js";
 import type { GameAction, GameSpeed } from "../../shared/types/index.js";
@@ -9,12 +10,14 @@ export class GameEngine {
   private db: Database.Database;
   private loop: GameLoop;
   private economySystem: EconomySystem;
+  private researchSystem: ResearchSystem;
   private shipManager: ShipManager;
   private empireManager: EmpireManager;
 
   constructor(db: Database.Database) {
     this.db = db;
     this.economySystem = new EconomySystem(db);
+    this.researchSystem = new ResearchSystem(db);
     this.shipManager = new ShipManager(db);
     this.empireManager = new EmpireManager(db);
 
@@ -87,7 +90,7 @@ export class GameEngine {
         return this.economySystem.buildShip(player.id, action.systemId, action.shipClass);
 
       case "RESEARCH_TECH":
-        return { ok: false, error: "Not yet implemented" };
+        return this.researchSystem.startResearch(player.id, action.techId);
 
       default:
         return { ok: false, error: `Unknown action type` };
@@ -188,6 +191,9 @@ export class GameEngine {
 
     // Process economy (every tick)
     this.economySystem.processTick();
+
+    // Process research (every tick)
+    this.researchSystem.processTick();
 
     // Persist tick
     this.persistTick(tick);
