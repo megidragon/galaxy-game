@@ -20,8 +20,12 @@ export function createGameRouter(engine: GameEngine): Router {
       res.status(400).json({ error: "Invalid action" });
       return;
     }
-    engine.handleAction(action);
-    res.json({ ok: true, tick: engine.getTick() });
+    const result = engine.handleAction(action);
+    if (!result.ok) {
+      res.status(400).json(result);
+      return;
+    }
+    res.json({ ...result, tick: engine.getTick() });
   });
 
   // Set game speed
