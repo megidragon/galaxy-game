@@ -6,6 +6,8 @@ import { getDatabase } from "./database/connection.js";
 import { createSchema } from "./database/schema.js";
 import { GameEngine } from "./engine/GameEngine.js";
 import { createGameRouter } from "./routes/game.js";
+import { createGalaxyRouter } from "./routes/galaxy.js";
+import { isGalaxyGenerated, generateGalaxy, saveGalaxy } from "./galaxy/index.js";
 import { CONFIG } from "../shared/config.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -19,6 +21,18 @@ function main(): void {
   const existing = db.prepare("SELECT id FROM game_state WHERE id = 1").get();
   if (!existing) {
     db.prepare("INSERT INTO game_state (id, tick, speed) VALUES (1, 0, 'paused')").run();
+  }
+
+  // Generate galaxy on first run
+  if (!isGalaxyGenerated(db)) {
+    console.log("No galaxy found. Generating new galaxy...");
+    const galaxyData = generateGalaxy();
+    saveGalaxy(db, galaxyData);
+    console.log(
+      `Galaxy generated: ${galaxyData.systems.length} systems, ` +
+      `${galaxyData.hyperlanes.length} hyperlanes, ` +
+      `${galaxyData.systems.reduce((s, sys) => s + sys.planets.length, 0)} planets`
+    );
   }
 
   // Create game engine
@@ -35,6 +49,7 @@ function main(): void {
 
   // API routes
   app.use("/api/game", createGameRouter(engine));
+  app.use("/api/galaxy", createGalaxyRouter(db));
 
   // Health check
   app.get("/api/health", (_req, res) => {
