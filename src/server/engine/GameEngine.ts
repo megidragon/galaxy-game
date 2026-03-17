@@ -3,6 +3,7 @@ import { GameLoop } from "./GameLoop.js";
 import { EconomySystem } from "../systems/EconomySystem.js";
 import { ResearchSystem } from "../systems/ResearchSystem.js";
 import { CombatSystem } from "../systems/CombatSystem.js";
+import { AISystem } from "../systems/AISystem.js";
 import { ShipManager } from "../entities/ShipManager.js";
 import { EmpireManager } from "../entities/EmpireManager.js";
 import type { GameAction, GameSpeed } from "../../shared/types/index.js";
@@ -13,6 +14,7 @@ export class GameEngine {
   private economySystem: EconomySystem;
   private researchSystem: ResearchSystem;
   private combatSystem: CombatSystem;
+  private aiSystem: AISystem;
   private shipManager: ShipManager;
   private empireManager: EmpireManager;
 
@@ -21,6 +23,7 @@ export class GameEngine {
     this.economySystem = new EconomySystem(db);
     this.researchSystem = new ResearchSystem(db);
     this.combatSystem = new CombatSystem(db);
+    this.aiSystem = new AISystem(db);
     this.shipManager = new ShipManager(db);
     this.empireManager = new EmpireManager(db);
 
@@ -197,6 +200,11 @@ export class GameEngine {
 
     // Process research (every tick)
     this.researchSystem.processTick();
+
+    // Process AI decisions (every 5 ticks to reduce computation)
+    if (tick % 5 === 0) {
+      this.aiSystem.processTick();
+    }
 
     // Process combat (every tick)
     this.combatSystem.processTick(tick);
