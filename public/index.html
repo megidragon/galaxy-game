@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galaxy Game</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a1a;
+      color: #e0e0ff;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    h1 { font-size: 2.5rem; margin-bottom: 0.5rem; color: #7b9fff; }
+    p { color: #8888aa; margin-bottom: 1rem; }
+    #status { padding: 1rem; background: #12122a; border-radius: 8px; min-width: 300px; text-align: center; }
+    .label { color: #6666aa; font-size: 0.85rem; text-transform: uppercase; }
+    .value { font-size: 1.5rem; font-weight: bold; color: #aaccff; }
+  </style>
+</head>
+<body>
+  <h1>Galaxy Game</h1>
+  <p>Space Grand Strategy</p>
+  <div id="status">
+    <div class="label">Server Status</div>
+    <div class="value" id="server-status">Connecting...</div>
+    <br>
+    <div class="label">Game Tick</div>
+    <div class="value" id="game-tick">-</div>
+  </div>
+  <script>
+    async function checkHealth() {
+      try {
+        const res = await fetch('/api/health');
+        const data = await res.json();
+        document.getElementById('server-status').textContent = data.status === 'ok' ? 'Online' : 'Error';
+        document.getElementById('game-tick').textContent = data.tick;
+      } catch {
+        document.getElementById('server-status').textContent = 'Offline';
+      }
+    }
+    checkHealth();
+    setInterval(checkHealth, 2000);
+  </script>
+</body>
+</html>

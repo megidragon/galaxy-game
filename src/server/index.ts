@@ -1,0 +1,62 @@
+import express from "express";
+import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
+import { getDatabase } from "./database/connection.js";
+import { createSchema } from "./database/schema.js";
+import { GameEngine } from "./engine/GameEngine.js";
+import { createGameRouter } from "./routes/game.js";
+import { CONFIG } from "../shared/config.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+function main(): void {
+  // Initialize database
+  const db = getDatabase();
+  createSchema(db);
+
+  // Ensure game_state row exists
+  const existing = db.prepare("SELECT id FROM game_state WHERE id = 1").get();
+  if (!existing) {
+    db.prepare("INSERT INTO game_state (id, tick, speed) VALUES (1, 0, 'paused')").run();
+  }
+
+  // Create game engine
+  const engine = new GameEngine(db);
+
+  // Set up Express
+  const app = express();
+  app.use(cors());
+  app.use(express.json());
+
+  // Serve static client files
+  const publicDir = path.resolve(__dirname, "../../public");
+  app.use(express.static(publicDir));
+
+  // API routes
+  app.use("/api/game", createGameRouter(engine));
+
+  // Health check
+  app.get("/api/health", (_req, res) => {
+    res.json({ status: "ok", tick: engine.getTick() });
+  });
+
+  // Start server
+  const { port, host } = CONFIG.server;
+  app.listen(port, () => {
+    console.log(`Galaxy Game server running at http://${host}:${port}`);
+  });
+
+  // Graceful shutdown
+  const shutdown = () => {
+    console.log("Shutting down...");
+    engine.destroy();
+    db.close();
+    process.exit(0);
+  };
+
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
+}
+
+main();
